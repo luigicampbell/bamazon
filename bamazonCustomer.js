@@ -19,7 +19,6 @@ connection.connect((err) => {
   loadProducts();
 });
 
-
 // Function to load Products
 const loadProducts = () => {
 
@@ -37,38 +36,67 @@ const loadProducts = () => {
 );}
 
 // Customer is prompted for a product ID
-const promptCustomerForItem = (inventory) =>{
+const promptCustomerForItem = (inventory) => {
   inquirer
   .prompt([
     {
-        type: "input",
-        name: "choice",
-        message: "Please enter the 'ID' of the product you would like to purchase... type 'X' to exit",
-        validate: (val) => {
-          // Validation and defensive for user
-          !isNaN(val) || val.toLowerCase() === "x";
+      type: "input",
+      name: "choice",
+      message: "Please enter the 'ID' of the product you would like to purchase or type 'X' to exit...\n Waiting for User Input...",
+      validate: (val) => {
+        // Validation and defensive for user
+        return !isNaN(val) || val.toLowerCase() === "x";
       }
     }
   ])
-  .then( (val) => {
+  .then((val) => {
     checkIfShouldExit(val.choice);
+    // console.log(this.val.choice.toLowerCase());
     let choiceId = parseInt(val.choice);
     let product = checkInventory(choiceId, inventory);
 
     // If there is a product with the id the user chose, prompt the customer for a desired quantity
     product ?
-      // Pass the chosen product to promptCustomerForQuantity
-      promptCustomerForQuantity(product)
+    // Pass the chosen product to promptCustomerForQuantity
+    promptCustomerForQuantity(product)
     :
-      // Otherwise let them know the item is not in the inventory, re-run loadProducts
-      console.log("\nI don't seem to have that in stock... Sorry!");
-      loadProducts();
-    });
+    // Otherwise let them know the item is not in the inventory, re-run loadProducts
+    console.log("\nI don't seem to have that in stock... Sorry!");
+    loadProducts();
+  });
 }
 
+// Prompt customer for quantity of product
+const promptCustomerForQuantity = (product) => {
+  inquirer
+  .prompt([
+    {
+      type: "input",
+      name: "quantity",
+      message: "Enter the quantity you would like to purchase or type 'X' to exit... \n Waiting for User Input...",
+      validate: (val) => {
+        // Validation and defensive for user
+        return val > 0 || val.toLowerCase() === "x";
+      }
+    }
+  ])
+  .then((val) => {
+    checkIfShouldExit(val.quantity);
+    // console.log(this.val.quantity.toLowerCase());
+    let quantity = parseInt(val.quantity);
+    if (quantity > product.stock_quantity)
+    {
+      console.log("\nInsufficient quantity!");
+      loadProducts();
+    } else makePurchase(product, quantity);
+  });
+}
 // If User wants to Exit
 const checkIfShouldExit = (choice) =>
-choice.toLowerCase() === "x"
-// Log a message and exit the current node process
-console.log("Closing Bamazon...");
-process.exit(0);
+{
+  choice.toLowerCase() === "x"
+    // Log a message and exit the current node process
+    console.log("Closing Bamazon...");
+    process.exit(0);
+
+}
