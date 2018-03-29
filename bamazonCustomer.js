@@ -51,7 +51,6 @@ const promptCustomerForItem = (inventory) => {
   ])
   .then((val) => {
     checkIfShouldExit(val.choice);
-    // console.log(this.val.choice.toLowerCase());
     let choiceId = parseInt(val.choice);
     let product = checkInventory(choiceId, inventory);
 
@@ -81,8 +80,7 @@ const promptCustomerForQuantity = (product) => {
     }
   ])
   .then((val) => {
-    checkIfShouldExit(val.quantity);
-    // console.log(this.val.quantity.toLowerCase());
+    // checkIfShouldExit(val.quantity);
     let quantity = parseInt(val.quantity);
     if (quantity > product.stock_quantity)
     {
@@ -91,12 +89,39 @@ const promptCustomerForQuantity = (product) => {
     } else makePurchase(product, quantity);
   });
 }
+
+// Check to see if the product the user chose exists in the inventory
+const checkInventory = (choiceId, inventory) => {
+  for (var i = 0; i < inventory.length; i++) {
+    if (inventory[i].item_id === choiceId) {
+      // If a matching product is found, return the product
+      return inventory[i];
+    }
+  }
+  // Otherwise return null
+  return null;
+}
+
+// Purchase the desired quanity of the desired item
+const makePurchase = (product, quantity) => {
+  connection.query(
+    "UPDATE products SET stock_quantity = stock_quantity - ? WHERE item_id = ?",
+    [quantity, product.item_id],
+    (err, res) => {
+      // Let the user know the purchase was successful, re-run loadProducts
+      console.log("\nSuccessfully purchased " + quantity + " " + product.product_name + "'s!");
+      loadProducts();
+    }
+  );
+}
+
 // If User wants to Exit
 const checkIfShouldExit = (choice) =>
 {
-  choice.toLowerCase() === "x"
+  if(choice.toLowerCase() === "x"){
     // Log a message and exit the current node process
     console.log("Closing Bamazon...");
     process.exit(0);
+  }
 
 }
