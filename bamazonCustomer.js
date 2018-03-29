@@ -80,10 +80,9 @@ const promptCustomerForQuantity = (product) => {
     }
   ])
   .then((val) => {
-    // checkIfShouldExit(val.quantity);
+    checkIfShouldExit(val.quantity);
     let quantity = parseInt(val.quantity);
-    if (quantity > product.stock_quantity)
-    {
+    if (quantity > product.stock_quantity){
       console.log("\nInsufficient quantity!");
       loadProducts();
     } else makePurchase(product, quantity);
